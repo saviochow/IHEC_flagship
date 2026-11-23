@@ -18,3 +18,7 @@ bash IHEC_flagship/scripts/bootstrap_savio_ex130_v2.sh
 The bootstrap creates a new, isolated checkout; checks source identity and the archive digest; and runs synthetic unit/integration tests. It **does not submit Slurm jobs**. An authenticated ClusterMCP connection and independently APPROVED Researchstack plan with a one-use approval are required for Yipcluster dispatch. The broker was disabled and unreachable at the time of publication; no Yipcluster v2 execution is claimed. Full methods, safeguards, command examples, and output schema are inside the v2 archive (`EX130/v2/README.md`).
 
 **Repository hygiene:** never add dataset-level features, human WGBS BEDs, BigWigs, intermediate expression tables, model checkpoints, lab-private Slurm output, SSH credentials, tokens, or source-machine directories as binaries.
+
+## MCP client dependency note (2026-11-23)
+
+The immutable v2 bundle was implemented using the MCP Python SDK **1.x** Streamable-HTTP transport interface, so its SavioCluster Python client needs **`mcp==1.30.0`** in a separate virtualenv. Installing the newer SDK 2.x without migrating the client source is incompatible. See [`EX130/v2/MCP_CLIENT_SETUP.md`](EX130/v2/MCP_CLIENT_SETUP.md). This dependency fix does not alter the v1/v2 scientific source archive or imply Yipcluster job submission.

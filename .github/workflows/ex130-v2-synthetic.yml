@@ -20,7 +20,7 @@ jobs:
           echo '0aa9ed114e6f0c89077d8f2490f776c8f10b03152158cc93a6825edaa59bcdea  /tmp/isoform_switch_v2.tar.gz' | sha256sum -c -
           tar -xzf /tmp/isoform_switch_v2.tar.gz --no-same-owner
       - name: Install synthetic test dependencies
-        run: python -m pip install --disable-pip-version-check numpy matplotlib
+        run: python -m pip install --disable-pip-version-check numpy matplotlib -r EX130/v2/requirements-mcp-client.txt
       - name: Syntax and synthetic end-to-end validation
         run: |
           python -m compileall -q EX130/v2
@@ -28,3 +28,23 @@ jobs:
           bash -n scripts/stage_yipcluster_ex130_v2.sh
           bash -n EX130/v2/slurm/run_single_allocation.sh
           python -m unittest discover -s EX130/v2/tests -v
+      - name: Verify pinned MCP client SDK API and safe local failure
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import inspect
+          from importlib.metadata import version
+          from mcp import ClientSession
+          from mcp.client.streamable_http import streamable_http_client
+          assert version("mcp") == "1.30.0", version("mcp")
+          assert "headers" in inspect.signature(streamable_http_client).parameters
+          assert ClientSession is not None
+          print("EX130_MCP_CLIENT_SDK_API_COMPATIBLE=true")
+          PY
+          python EX130/v2/mcp_dispatch.py --help > /dev/null
+          if env -u CLUSTERMCP_URL -u CLUSTERMCP_TOKEN python EX130/v2/mcp_dispatch.py status > /tmp/ex130_mcp_expected_error.out 2>&1; then
+            echo "status must fail closed when credentials are absent" >&2; exit 1
+          fi
+          grep -q 'Set CLUSTERMCP_URL' /tmp/ex130_mcp_expected_error.out
+          echo "EX130_MCP_MISSING_CREDENTIALS_FAIL_CLOSED=true"
