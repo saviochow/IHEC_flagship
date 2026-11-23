@@ -1,0 +1,14 @@
+case_id,txid,rna_type,tissue_high,tissue_low,source_model,selection_reason
+PILOT_01,ENST00000583418.1,mRNA,Liver,Colon,IHECRE00001900_mRNA-Seq,graded observed and predicted contrast in fixed liver model
+PILOT_02,ENST00000585359.1,mRNA,Liver,Colon,IHECRE00001900_mRNA-Seq,graded observed and predicted contrast in fixed liver model
+PILOT_03,ENST00000580678.5,mRNA,Liver,Colon,IHECRE00001900_mRNA-Seq,graded observed and predicted contrast in fixed liver model
+PILOT_04,ENST00000586020.1,mRNA,Liver,Breast,IHECRE00001900_mRNA-Seq,on-off case with good fixed-model prediction
+PILOT_05,ENST00000593831.1,mRNA,Liver,Thyroid,IHECRE00001900_mRNA-Seq,on-off case with good fixed-model prediction
+PILOT_06,ENST00000596606.1,mRNA,Colon,Liver,IHECRE00001900_mRNA-Seq,on-off case with good fixed-model prediction
+PILOT_07,ENST00000585685.5,mRNA,Liver,Breast,IHECRE00001900_mRNA-Seq,on-off diagonal and fixed liver source candidate
+PILOT_08,ENST00000489441.5,mRNA,Breast,Colon,IHECRE00000223,diagonal exploratory contrast; fixed breast-source predictions to be verified
+PILOT_09,ENST00000409224.5,total,Tonsil,Brain,IHECRE00000283,diagonal exploratory contrast; fixed tonsil-source predictions to be verified
+PILOT_10,ENST00000391725.7,total,Bone Marrow,Tonsil,IHECRE00000248,diagonal exploratory contrast; fixed bone marrow-source predictions to be verified
+PILOT_11,ENST00000591344.1,mRNA,Placenta,Venous Blood,IHECRE00001952,graded diagonal contrast; fixed placenta-source predictions to be verified
+PILOT_12,ENST00000269142.9,mRNA,Placenta,Venous Blood,IHECRE00001952,graded diagonal contrast; fixed placenta-source predictions to be verified
+PILOT_13,ENST00000598603.1,mRNA,Cord Blood,Endometrium,IHECRE00000237,graded diagonal contrast; fixed cord-blood-source predictions to be verified
