@@ -38,12 +38,14 @@ jobs:
           from mcp import ClientSession
           from mcp.client.streamable_http import streamable_http_client
           assert version("mcp") == "1.30.0", version("mcp")
-          assert "headers" in inspect.signature(streamable_http_client).parameters
+          sig = inspect.signature(streamable_http_client)
+          assert "http_client" in sig.parameters, sig
+          assert "headers" not in sig.parameters, sig
           assert ClientSession is not None
           print("EX130_MCP_CLIENT_SDK_API_COMPATIBLE=true")
           PY
-          python EX130/v2/mcp_dispatch.py --help > /dev/null
-          if env -u CLUSTERMCP_URL -u CLUSTERMCP_TOKEN python EX130/v2/mcp_dispatch.py status > /tmp/ex130_mcp_expected_error.out 2>&1; then
+          python scripts/mcp_dispatch_fixed.py --help > /dev/null
+          if env -u CLUSTERMCP_URL -u CLUSTERMCP_TOKEN python scripts/mcp_dispatch_fixed.py status > /tmp/ex130_mcp_expected_error.out 2>&1; then
             echo "status must fail closed when credentials are absent" >&2; exit 1
           fi
           grep -q 'Set CLUSTERMCP_URL' /tmp/ex130_mcp_expected_error.out

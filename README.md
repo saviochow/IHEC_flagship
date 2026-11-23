@@ -19,6 +19,6 @@ The bootstrap creates a new, isolated checkout; checks source identity and the a
 
 **Repository hygiene:** never add dataset-level features, human WGBS BEDs, BigWigs, intermediate expression tables, model checkpoints, lab-private Slurm output, SSH credentials, tokens, or source-machine directories as binaries.
 
-## MCP client dependency note (2026-11-23)
+## MCP client compatibility repair (2026-11-23)
 
-The immutable v2 bundle was implemented using the MCP Python SDK **1.x** Streamable-HTTP transport interface, so its SavioCluster Python client needs **`mcp==1.30.0`** in a separate virtualenv. Installing the newer SDK 2.x without migrating the client source is incompatible. See [`EX130/v2/MCP_CLIENT_SETUP.md`](EX130/v2/MCP_CLIENT_SETUP.md). This dependency fix does not alter the v1/v2 scientific source archive or imply Yipcluster job submission.
+The frozen v2 research archive has a historical low-level MCP client whose HTTP arguments are not accepted by the maintained SDK. To preserve the exact staged research source, run the new isolated [`scripts/mcp_dispatch_fixed.py`](scripts/mcp_dispatch_fixed.py) with the pinned `mcp==1.30.0` environment. This fix is independently CI-tested; consult [`EX130/v2/MCP_CLIENT_SETUP.md`](EX130/v2/MCP_CLIENT_SETUP.md). Scientific code and Yipcluster work-root SHA remain unchanged. The scheduler gateway remains disabled until separate operator/Researchstack approval.
