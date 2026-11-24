@@ -1,0 +1,19 @@
+# Never commit EX130 patient/sample-level research data or generated results.
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/results/
+**/case_runs/
+**/expression_cache.sqlite
+**/expression_points.csv
+**/paired_features.csv
+**/*.bed
+**/*.bed.gz
+**/*.bigwig
+**/*.bw
+**/*.pt
+**/*.pth
+**/*.ckpt
+**/*.h5
+**/*.hdf5
+**/*_test_logits.csv

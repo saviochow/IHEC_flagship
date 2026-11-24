@@ -1,0 +1,85 @@
+name: EX130 v2 synthetic research smoke tests
+on:
+  push:
+    branches: [research/ex130-isoform-switch-v2-20261123]
+  pull_request:
+jobs:
+  package-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable EX130 v2 source bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find EX130/v2/bundle -name '*.b64' -type f | wc -l)" -eq 11
+          cat EX130/v2/bundle/[0-9][0-9].b64 | base64 -d > /tmp/isoform_switch_v2.tar.gz
+          echo '0aa9ed114e6f0c89077d8f2490f776c8f10b03152158cc93a6825edaa59bcdea  /tmp/isoform_switch_v2.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/isoform_switch_v2.tar.gz --no-same-owner
+      - name: Install synthetic test dependencies
+        run: python -m pip install --disable-pip-version-check numpy matplotlib -r EX130/v2/requirements-mcp-client.txt
+      - name: Syntax and synthetic end-to-end validation
+        run: |
+          python -m compileall -q EX130/v2
+          bash -n scripts/bootstrap_savio_ex130_v2.sh
+          bash -n scripts/stage_yipcluster_ex130_v2.sh
+          bash -n EX130/v2/slurm/run_single_allocation.sh
+          python -m unittest discover -s EX130/v2/tests -v
+      - name: Verify pinned MCP client SDK API and safe local failure
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import inspect
+          from importlib.metadata import version
+          from mcp import ClientSession
+          from mcp.client.streamable_http import streamable_http_client
+          assert version("mcp") == "1.30.0", version("mcp")
+          sig = inspect.signature(streamable_http_client)
+          assert "http_client" in sig.parameters, sig
+          assert "headers" not in sig.parameters, sig
+          assert ClientSession is not None
+          print("EX130_MCP_CLIENT_SDK_API_COMPATIBLE=true")
+          PY
+          python scripts/mcp_dispatch_fixed.py --help > /dev/null
+          if env -u CLUSTERMCP_URL -u CLUSTERMCP_TOKEN python scripts/mcp_dispatch_fixed.py status > /tmp/ex130_mcp_expected_error.out 2>&1; then
+            echo "status must fail closed when credentials are absent" >&2; exit 1
+          fi
+          grep -q 'Set CLUSTERMCP_URL' /tmp/ex130_mcp_expected_error.out
+          echo "EX130_MCP_MISSING_CREDENTIALS_FAIL_CLOSED=true"
+  yip-python38-plot-compatibility:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      - name: Recover exact immutable scientific source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find EX130/v2/bundle -name '*.b64' -type f | wc -l)" -eq 11
+          cat EX130/v2/bundle/[0-9][0-9].b64 | base64 -d > /tmp/isoform_switch_v2.tar.gz
+          echo '0aa9ed114e6f0c89077d8f2490f776c8f10b03152158cc93a6825edaa59bcdea  /tmp/isoform_switch_v2.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/isoform_switch_v2.tar.gz --no-same-owner
+      - name: Match the observed Yip analysis minor version and plotting dependencies
+        run: python -m pip install --disable-pip-version-check 'numpy==1.24.4' 'matplotlib==3.7.5'
+      - name: Verify Python 3.8 compatibility and execute synthetic payload and plots
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import sys
+          import numpy
+          import matplotlib
+          assert sys.version_info[:2] == (3, 8)
+          print('CI Python:', sys.version.split()[0])
+          assert numpy.__version__ == '1.24.4'
+          assert matplotlib.__version__ == '3.7.5'
+          print("YIP_PYTHON_MINOR_AND_PLOTTING_COMPATIBILITY=true")
+          PY
+          python -m compileall -q EX130/v2
+          python -m unittest discover -s EX130/v2/tests -v
